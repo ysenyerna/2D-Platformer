@@ -17,6 +17,8 @@ public class PlayerController : Character
 	// Components
 	Timer coyoteTime;
 	Timer jumpBuffer;
+	Animator anim;
+	SpriteRenderer sprite;
 
 	// Input
 	InputActionMap input; 
@@ -31,6 +33,8 @@ public class PlayerController : Character
 		// Get components
 		coyoteTime = GetComponents<Timer>().First(t => t.id == "CoyoteTime");
 		jumpBuffer = GetComponents<Timer>().First(t => t.id == "JumpBuffer");
+		anim = GetComponent<Animator>();
+		sprite = GetComponent<SpriteRenderer>();
 
 	}
 
@@ -38,6 +42,7 @@ public class PlayerController : Character
 	{
 		HandleHorizontalMovement();
 		HandleVerticalMovement();
+		HandleAnimation();
 		Move();
 	}
 
@@ -109,6 +114,24 @@ public class PlayerController : Character
 				Velocity.y -= diff * delta;
 			}
 		}
+	}
+
+	private void HandleAnimation()
+	{
+		// Flip
+		if (Velocity.x != 0)
+			sprite.flipX = Velocity.x < 0;
+
+		// Animations
+		if (onFloor && Velocity.x == 0)
+			anim.Play("PlayerIdle");
+		else if (onFloor) 
+			anim.Play("PlayerRun");
+		else if (Velocity.y > 0)
+			anim.Play("PlayerJump");
+		else 
+			anim.Play("PlayerFall");
+		
 	}
 
 }
