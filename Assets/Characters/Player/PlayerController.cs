@@ -57,8 +57,7 @@ public class PlayerController : Character
 		if (input["MoveRight"].IsPressed()) dir += 1f;
 
 		// Set speed to either acceleration or deceleration
-		var speed = (Mathf.Sign(dir) != Mathf.Sign(Velocity.x)) ? DecelerationSpeed : AccelerationSpeed;
-
+		var speed = (System.Math.Sign(dir) != System.Math.Sign(Velocity.x)) ? DecelerationSpeed : AccelerationSpeed;
 		
 		Velocity.x = Mathf.MoveTowards(Velocity.x, MaxSpeed * dir, speed * delta);
 
@@ -71,7 +70,6 @@ public class PlayerController : Character
 	bool onFloor = false;
 	private void HandleVerticalMovement()
 	{
-		//print(Velocity);
 		var delta = Time.deltaTime * 60;
 
 		// Get buffered jump input

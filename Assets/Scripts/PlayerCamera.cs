@@ -1,4 +1,3 @@
-using Cinemachine;
 using UnityEngine;
 
 public class PlayerCamera : MonoBehaviour
@@ -37,28 +36,40 @@ public class PlayerCamera : MonoBehaviour
 			UpdatePosition(Time.fixedDeltaTime);
 	}
 
+	private void OnTriggerEnter2D(Collider2D collider)
+	{
+		if (!collider.CompareTag("CameraZone"))
+			return;
+
+		if (collider is not BoxCollider2D box)
+		{
+			print($"Camera zone {collider.name} does not have a box collider.");
+			return;
+		}
+
+		var pos = new Vector2(box.transform.position.x, box.transform.position.y) + box.offset;
+		var halfWidth = box.size.x / 2;
+		var halfHeight = box.size.y / 2;
+
+		LimitLeft = pos.x - halfWidth;
+		LimitRight = pos.x + halfWidth;
+		LimitBottom = pos.y - halfHeight;
+		LimitTop = pos.y + halfHeight;
+		
+	}
+
 	private void UpdatePosition(float delta)
 	{
 		TargetPosition = player.transform.position;
 		var actualTarget = TargetPosition;
 
-
-		// Handle limits
-		var halfHeight = cam.orthographicSize;
+		// Left and right limits
 		var halfWidth = cam.orthographicSize * cam.aspect;
-		
-		// Left limit
-		if (TargetPosition.x - halfWidth < LimitLeft)
-			actualTarget.x = LimitLeft + halfWidth;
-		// Right limit
-		if (TargetPosition.x + halfWidth > LimitRight)
-			actualTarget.x = LimitRight - halfWidth;
-		// Top limit
-		if (TargetPosition.y + halfHeight > LimitTop)
-			actualTarget.y = LimitTop - halfHeight;
-		// Bottom limit
-		if (TargetPosition.y - halfHeight < LimitBottom)
-			actualTarget.y = LimitBottom + halfHeight;
+		actualTarget.x = Mathf.Clamp(actualTarget.x, LimitLeft + halfWidth, LimitRight - halfWidth);
+
+		// Top and bottom limits
+		var halfHeight = cam.orthographicSize;
+		actualTarget.y = Mathf.Clamp(actualTarget.y, LimitBottom + halfHeight, LimitTop - halfHeight);
 
 		// Apply smoothing
 		var newPos = Vector2.Lerp(cam.transform.position, actualTarget, CameraSmoothing * delta);
