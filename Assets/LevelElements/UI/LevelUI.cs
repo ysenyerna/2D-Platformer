@@ -28,7 +28,10 @@ public class LevelUI : MonoBehaviour
 		fadeTime.Timeout += FadeTime_Timeout;
 
 		// Set initial fade
-		fade.color = new(fade.color.r, fade.color.g, fade.color.b, 0);
+		fade.color = new(fade.color.r, fade.color.g, fade.color.b, 1f);
+		fadeState = FadeState.Black;
+		fadeTime.time = WaitTimeBetweenFade;
+		fadeTime.Run();
 	}
 
 

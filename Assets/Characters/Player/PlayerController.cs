@@ -106,8 +106,8 @@ public class PlayerController : Character
 			if (collider.transform.parent.TryGetComponent<Mushroom>(out var mushroom))
 			{
 				var playerBottom = transform.position.y + hitbox.offset.y - (hitbox.size.y / 2);
-				var mushroomTop = mushroom.transform.position.y + mushroom.damageBox.offset.y + (mushroom.damageBox.size.y / 2);
-				if (playerBottom > mushroomTop || Velocity.y < -3f)
+				var mushroomTop = mushroom.transform.position.y + mushroom.damageBox.offset.y;
+				if (playerBottom > mushroomTop)
 				{
 					Jump();
 					mushroom.Die();
