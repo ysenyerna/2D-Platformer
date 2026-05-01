@@ -47,29 +47,26 @@ public class PlayerCamera : MonoBehaviour
 			return;
 		}
 
-		var pos = new Vector2(box.transform.position.x, box.transform.position.y) + box.offset;
-		var halfWidth = box.size.x / 2;
-		var halfHeight = box.size.y / 2;
+		UpdateCameraLimitsToCameraZone(box);
+	}
+
+	public void UpdateCameraLimitsToCameraZone(BoxCollider2D zone)
+	{
+		var pos = new Vector2(zone.transform.position.x, zone.transform.position.y) + zone.offset;
+		var halfWidth = zone.size.x / 2;
+		var halfHeight = zone.size.y / 2;
 
 		LimitLeft = pos.x - halfWidth;
 		LimitRight = pos.x + halfWidth;
 		LimitBottom = pos.y - halfHeight;
 		LimitTop = pos.y + halfHeight;
-		
+
 	}
 
 	private void UpdatePosition(float delta)
 	{
 		TargetPosition = player.transform.position;
-		var actualTarget = TargetPosition;
-
-		// Left and right limits
-		var halfWidth = cam.orthographicSize * cam.aspect;
-		actualTarget.x = Mathf.Clamp(actualTarget.x, LimitLeft + halfWidth, LimitRight - halfWidth);
-
-		// Top and bottom limits
-		var halfHeight = cam.orthographicSize;
-		actualTarget.y = Mathf.Clamp(actualTarget.y, LimitBottom + halfHeight, LimitTop - halfHeight);
+		var actualTarget = ApplyLimits(TargetPosition);
 
 		// Apply smoothing
 		var newPos = Vector2.Lerp(cam.transform.position, actualTarget, CameraSmoothing * delta);
@@ -79,5 +76,35 @@ public class PlayerCamera : MonoBehaviour
 
 	}
 
+	// Applies camera limits to a target position and returns the result
+	private Vector2 ApplyLimits(Vector2 targetPos)
+	{
+		// Left and right limits
+		var halfWidth = cam.orthographicSize * cam.aspect;
+
+		if ( halfWidth * 2 > LimitRight - LimitLeft)
+			targetPos.x = (LimitLeft + LimitRight) / 2;
+		else
+			targetPos.x = Mathf.Clamp(targetPos.x, LimitLeft + halfWidth, LimitRight - halfWidth);
+
+		// Top and bottom limits
+		var halfHeight = cam.orthographicSize;
+
+		if (halfHeight * 2 > LimitTop - LimitBottom)
+			targetPos.y = (LimitTop + LimitBottom) / 2;
+		else 
+			targetPos.y = Mathf.Clamp(targetPos.y, LimitBottom + halfHeight, LimitTop - halfHeight);
+
+		return targetPos;
+	}
+
+
+	// Updates the camera position without smoothing (instantly) for one frame than goes back to normal
+	public void UpdatePositionNoSmoothing()
+	{
+		TargetPosition = player.transform.position;
+		var target = ApplyLimits(TargetPosition);
+		cam.transform.position = new Vector3(target.x, target.y, cam.transform.position.z);
+	}
 
 }
