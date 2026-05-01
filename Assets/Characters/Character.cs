@@ -11,8 +11,8 @@ public abstract class Character : MonoBehaviour
 
 
 	private Rigidbody2D body;
-	private BoxCollider2D hitbox;
-	private int TerrainLayerMask = -1;
+	public BoxCollider2D hitbox { get; private set; }
+	protected int TerrainLayerMask = -1;
 	protected virtual void Start()
 	{
 		TerrainLayerMask = LayerMask.GetMask("Terrain");

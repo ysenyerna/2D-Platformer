@@ -19,6 +19,8 @@ public class PlayerController : Character
 
 	LevelUI ui;
 
+	[Header("Other")]
+	[SerializeField] GameObject dustParticlePrefab;
 
 	// Components
 	Timer coyoteTime;
@@ -28,6 +30,7 @@ public class PlayerController : Character
 
 	// Input
 	InputActionMap input; 
+	bool jumpInput = false;
 
 	// States
 	enum State { Playing, Dying, Respawning }
@@ -57,6 +60,13 @@ public class PlayerController : Character
 
 	private void Update()
 	{
+		HandleAnimation();
+		if (!jumpInput)
+			jumpInput = input["Jump"].WasPressedThisFrame();
+	}
+
+	private void FixedUpdate()
+	{
 		if (state == State.Playing)
 		{
 			HandleHorizontalMovement();
@@ -68,8 +78,8 @@ public class PlayerController : Character
 			Velocity = Vector2.zero;
 		}
 
-		HandleAnimation();
 		Move();
+		jumpInput = false;
 	}
 
 	private void OnTriggerEnter2D(Collider2D collider)
@@ -91,6 +101,20 @@ public class PlayerController : Character
 		// Handle death
 		else if (collider.CompareTag("Death"))
 		{
+
+			// Bounce on the mushroom if the player is on top
+			if (collider.transform.parent.TryGetComponent<Mushroom>(out var mushroom))
+			{
+				var playerBottom = transform.position.y + hitbox.offset.y - (hitbox.size.y / 2);
+				var mushroomTop = mushroom.transform.position.y + mushroom.damageBox.offset.y + (mushroom.damageBox.size.y / 2);
+				if (playerBottom > mushroomTop || Velocity.y < -3f)
+				{
+					Jump();
+					mushroom.Die();
+					return;
+				}	
+			}
+
 			Die();
 		}
 	}
@@ -122,7 +146,7 @@ public class PlayerController : Character
 		var delta = Time.deltaTime * 60;
 
 		// Get buffered jump input
-		if (input["Jump"].WasPressedThisFrame())
+		if (jumpInput)
 			jumpBuffer.Run();
 
 		// Handle coyote time timer
@@ -141,9 +165,7 @@ public class PlayerController : Character
 		// Jump
 		if (jumpBuffer.Running && (onFloor || coyoteTime.Running))
 		{
-			jumpBuffer.Stop();
-			coyoteTime.Stop();
-			Velocity.y = JumpVelocity;
+			Jump();
 		}
 
 		// Fall
@@ -161,6 +183,17 @@ public class PlayerController : Character
 				Velocity.y -= diff * delta;
 			}
 		}
+	}
+
+	private void Jump()
+	{
+		jumpBuffer.Stop();
+		coyoteTime.Stop();
+		Velocity.y = JumpVelocity;
+
+		// Create jump particles
+		var particles = Instantiate(dustParticlePrefab);
+		particles.transform.position = new (transform.position.x, transform.position.y, particles.transform.position.z);
 	}
 
 	private void HandleAnimation()
