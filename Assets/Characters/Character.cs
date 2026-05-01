@@ -13,6 +13,7 @@ public abstract class Character : MonoBehaviour
 	private Rigidbody2D body;
 	public BoxCollider2D hitbox { get; private set; }
 	protected int TerrainLayerMask = -1;
+
 	protected virtual void Start()
 	{
 		TerrainLayerMask = LayerMask.GetMask("Terrain");
@@ -49,8 +50,17 @@ public abstract class Character : MonoBehaviour
 	public void Move()
 	{
 		body.linearVelocity = Velocity;
+	
 	}
 
+	// Handle moving platforms
+	void OnCollisionStay2D(Collision2D collider)
+	{
+		if (!collider.gameObject.TryGetComponent<MovingPlatform>(out var platform))
+			return;
+
+		body.position += platform.Velocity;
+	}
 
 
 
@@ -58,7 +68,19 @@ public abstract class Character : MonoBehaviour
 
 	// Checks whether the character is touching ground in a direction
 	private bool CheckTouchingGround(Vector2 dir)
-		=> Physics2D.BoxCast((Vector2)transform.position + hitbox.offset, hitbox.size, 0, dir, 0.04f, TerrainLayerMask);
+	{
+		var hitboxPos = (Vector2)transform.position + hitbox.offset;
+		var offset = hitbox.size / 2 * dir;
+
+		Vector2 raySize;
+		if (dir.x == 0)
+			raySize = new(hitbox.size.x, 0.04f);
+		else 
+			raySize = new(0.04f, hitbox.size.y - 0.2f);
+
+		return Physics2D.BoxCast(hitboxPos + offset, raySize, 0, dir, 0.0f, TerrainLayerMask);
+	}
+		
 
 
 
