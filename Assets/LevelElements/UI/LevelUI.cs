@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class LevelUI : MonoBehaviour
@@ -45,10 +46,6 @@ public class LevelUI : MonoBehaviour
 		coinDigit2 = GameObject.Find("CoinCount/Digit2").GetComponent<Image>();
 
 	}
-
-
-
-
 
 	private void Update()
 	{
@@ -134,5 +131,9 @@ public class LevelUI : MonoBehaviour
 		fadeTime.Run();
 	}
 
+	public void End()
+	{
+		GlobalData.LoadScene("EndScreen");
+	}
 
 }

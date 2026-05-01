@@ -34,7 +34,7 @@ public class TitleScreenManager : MonoBehaviour
 
 	void FadeTime_Timeout()
 	{
-		SceneManager.LoadScene("World");
+		GlobalData.LoadScene("World");
 		fade.color = new( fade.color.r, fade.color.g, fade.color.b, 1f);
 	}
 

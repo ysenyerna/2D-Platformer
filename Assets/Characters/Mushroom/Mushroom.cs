@@ -34,11 +34,11 @@ public class Mushroom : Character
 
 		if (moving)
 		{
-			// Turn around when reaching an edge or when hitting a wall
+			// Turn around when reaching an edge or when hitting a wall or enemy
 			if (onFloor)
 			{
 				var ray = Physics2D.Raycast(new(transform.position.x + dir * 0.3f, transform.position.y), Vector2.down, 0.55f, TerrainLayerMask);
-				var onWall = IsOnWall(dir);
+				var onWall = IsOnWall(dir, TerrainLayerMask | LayerMask.GetMask("Enemy"));
 				if (onWall || !ray)
 					dir = -dir;
 			}

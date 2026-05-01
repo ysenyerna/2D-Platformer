@@ -3,7 +3,8 @@ using UnityEngine;
 public class Coin : MonoBehaviour
 {
 
-
+	[HideInInspector]
+	public bool collected = false;
 	
 	Animator anim;
 
@@ -15,7 +16,6 @@ public class Coin : MonoBehaviour
 	public void Pickup()
 	{
 		anim.Play("CoinPickup");
-		
 	}
 
 	void AnimationFinished()

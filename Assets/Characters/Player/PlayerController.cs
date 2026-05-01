@@ -33,7 +33,7 @@ public class PlayerController : Character
 	bool jumpInput = false;
 
 	// States
-	enum State { Playing, Dying, Respawning }
+	enum State { Playing, Dying, Respawning, End }
 	State state = State.Playing;
 
 	protected override void Start()
@@ -101,6 +101,9 @@ public class PlayerController : Character
 		// Handle coins
 		else if (collider.gameObject.TryGetComponent<Coin>(out var coin))
 		{
+			if (coin.collected)
+				return;
+			coin.collected = true;
 			GlobalData.CollectCoin();
 			coin.Pickup();
 		}
@@ -116,13 +119,25 @@ public class PlayerController : Character
 				var mushroomTop = mushroom.transform.position.y + mushroom.damageBox.offset.y;
 				if (playerBottom > mushroomTop)
 				{
-					Jump();
+					Jump(1.2f);
 					mushroom.Die();
 					return;
 				}	
 			}
 
 			Die();
+		}
+
+		// Handle ending
+		else if (collider.CompareTag("EndZone"))
+		{
+			state = State.End;
+			ui.WaitTimeBetweenFade = 100f;
+			ui.FadeBlack -= GoToRespawnPosition;
+			ui.FadeBlack += ui.End;
+			ui.StartFade();
+
+			
 		}
 	}
 
@@ -192,11 +207,11 @@ public class PlayerController : Character
 		}
 	}
 
-	private void Jump()
+	private void Jump(float heightMultiplier = 1f)
 	{
 		jumpBuffer.Stop();
 		coyoteTime.Stop();
-		Velocity.y = JumpVelocity;
+		Velocity.y = JumpVelocity * heightMultiplier;
 
 		// Create jump particles
 		var particles = Instantiate(dustParticlePrefab);

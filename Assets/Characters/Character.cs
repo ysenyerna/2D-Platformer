@@ -38,12 +38,12 @@ public abstract class Character : MonoBehaviour
 		=> CheckTouchingGround(Vector2.up);
 
 	// Returns whether the character is touching a wall in the given direction (negative number for left, position number for right). Returns false if direction is 0
-	public bool IsOnWall(float dir)
+	public bool IsOnWall(float dir, LayerMask? mask = null)
 	{
 		if (dir == 0)
 			return false;
 		dir = Mathf.Sign(dir);
-		return CheckTouchingGround(new(dir, 0));
+		return CheckTouchingGround(new(dir, 0), mask);
 	}
 
 	// Apply velocity
@@ -67,8 +67,10 @@ public abstract class Character : MonoBehaviour
 	// PRIVATE METHODS
 
 	// Checks whether the character is touching ground in a direction
-	private bool CheckTouchingGround(Vector2 dir)
+	private bool CheckTouchingGround(Vector2 dir, LayerMask? mask = null)
 	{
+		mask ??= TerrainLayerMask;
+
 		var hitboxPos = (Vector2)transform.position + hitbox.offset;
 		var offset = hitbox.size / 2 * dir;
 
@@ -78,9 +80,19 @@ public abstract class Character : MonoBehaviour
 		else 
 			raySize = new(0.04f, hitbox.size.y - 0.2f);
 
-		return Physics2D.BoxCast(hitboxPos + offset, raySize, 0, dir, 0.0f, TerrainLayerMask);
+		var hits = Physics2D.BoxCastAll(hitboxPos + offset, raySize, 0, dir, 0.0f, (int)(LayerMask)mask);
+		foreach (var hit in hits)
+		{
+			// Ignore self
+			if (hit.collider == hitbox)
+				continue;
+
+			return true;
+		}
+		return false;
 	}
 		
+
 
 
 

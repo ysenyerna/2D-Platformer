@@ -8,6 +8,7 @@ TagManager:
   - CameraZone
   - Death
   - UI
+  - EndZone
   layers:
   - Default
   - TransparentFX

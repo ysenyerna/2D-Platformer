@@ -1,6 +1,7 @@
 
 
 using System;
+using UnityEngine.SceneManagement;
 
 public static class GlobalData
 {
@@ -21,9 +22,19 @@ public static class GlobalData
 		CoinCount += 1;
 	}
 
-	public static void ResetCointCount()
+	public static void ResetCoinCount()
 	{
 		CoinCount = 0;
+	}
+
+	public static void LoadScene(string sceneName)
+	{
+		CoinCountUpdated = null;
+
+		if (sceneName == "World")
+			ResetCoinCount();
+
+		SceneManager.LoadScene(sceneName);
 	}
 
 }
