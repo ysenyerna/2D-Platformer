@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -21,6 +22,11 @@ public class LevelUI : MonoBehaviour
 	FadeState fadeState = FadeState.NotFading;
 
 
+	// COINS
+	public Sprite[] digits;
+	private Image coinDigit1;
+	private Image coinDigit2;
+
 	private void Start()
 	{
 		fade = GetComponentInChildren<Image>();
@@ -32,6 +38,12 @@ public class LevelUI : MonoBehaviour
 		fadeState = FadeState.Black;
 		fadeTime.time = WaitTimeBetweenFade;
 		fadeTime.Run();
+
+		// Coins
+		GlobalData.CoinCountUpdated += CoinCountChanged;
+		coinDigit1 = GameObject.Find("CoinCount/Digit1").GetComponent<Image>();
+		coinDigit2 = GameObject.Find("CoinCount/Digit2").GetComponent<Image>();
+
 	}
 
 
@@ -98,6 +110,19 @@ public class LevelUI : MonoBehaviour
 		}
 	}
 
+
+	private void CoinCountChanged()
+	{
+		var coinCount = GlobalData.CoinCount;
+		coinCount = Math.Min(coinCount, 99);
+
+		int digit1 = (int)Math.Floor(coinCount / 10f);
+		int digit2 = (int)Math.Floor(coinCount % 10f);
+
+		coinDigit1.sprite = digits[digit1];
+		coinDigit2.sprite = digits[digit2];
+		
+	}
 
 
 

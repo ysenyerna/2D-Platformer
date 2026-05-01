@@ -98,6 +98,13 @@ public class PlayerController : Character
 			currentCheckpoint.Active = true;
 		}
 
+		// Handle coins
+		else if (collider.gameObject.TryGetComponent<Coin>(out var coin))
+		{
+			GlobalData.CollectCoin();
+			coin.Pickup();
+		}
+
 		// Handle death
 		else if (collider.CompareTag("Death"))
 		{
